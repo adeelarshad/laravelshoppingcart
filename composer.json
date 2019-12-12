@@ -1,0 +1,34 @@
+{
+    "name": "proxi/shoppingcart",
+    "description": "Laravel Shopping Cart",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Tahir Rasheed",
+            "email": "tahirrasheed208@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.0",
+        "illuminate/support": "5.0.*|5.1.*|5.2.*|5.3.*|5.4.*|5.5.*|5.6.*|5.7.*|5.8.*|^6.0",
+        "illuminate/validation": "5.0.*|5.1.*|5.2.*|5.3.*|5.4.*|5.5.*|5.6.*|5.7.*|5.8.*|^6.0",
+        "illuminate/translation": "5.0.*|5.1.*|5.2.*|5.3.*|5.4.*|5.5.*|5.6.*|5.7.*|5.8.*|^6.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Proxi\\ShoppingCart\\": "src/"
+        }
+    },
+    "minimum-stability": "dev",
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Proxi\\ShoppingCart\\CartServiceProvider"
+            ],
+            "aliases": {
+                "Cart": "Proxi\\ShoppingCart\\Facade\\Cart"
+            }
+        }
+    }
+}
