@@ -1,9 +1,4 @@
 ## LaravelShoppingcart
-[![Build Status](https://travis-ci.org/Crinsane/LaravelShoppingcart.png?branch=master)](https://travis-ci.org/Crinsane/LaravelShoppingcart)
-[![Total Downloads](https://poser.pugx.org/gloudemans/shoppingcart/downloads.png)](https://packagist.org/packages/gloudemans/shoppingcart)
-[![Latest Stable Version](https://poser.pugx.org/gloudemans/shoppingcart/v/stable)](https://packagist.org/packages/gloudemans/shoppingcart)
-[![Latest Unstable Version](https://poser.pugx.org/gloudemans/shoppingcart/v/unstable)](https://packagist.org/packages/gloudemans/shoppingcart)
-[![License](https://poser.pugx.org/gloudemans/shoppingcart/license)](https://packagist.org/packages/gloudemans/shoppingcart)
 
 A simple shoppingcart implementation for Laravel.
 
@@ -11,36 +6,30 @@ A simple shoppingcart implementation for Laravel.
 
 Install the package through [Composer](http://getcomposer.org/). 
 
-Run the Composer require command from the Terminal:
+Add this code in your laravel project composer.json file under "require"
 
-    composer require gloudemans/shoppingcart
-    
-If you're using Laravel 5.5, this is all there is to do. 
+		"proxi/shoppingcart": "^1.0.1"
 
-Should you still be on version 5.4 of Laravel, the final steps for you are to add the service provider of the package and alias the package. To do this open your `config/app.php` file.
+Define repositories url in your composer.json file
 
-Add a new line to the `providers` array:
+		"repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/adeelarshad/laravelshoppingcart"
+        }
+    ],
 
-	Gloudemans\Shoppingcart\ShoppingcartServiceProvider::class
+Run the Composer update command from the Terminal:
 
-And optionally add a new line to the `aliases` array:
-
-	'Cart' => Gloudemans\Shoppingcart\Facades\Cart::class,
-
-Now you're ready to start using the shoppingcart in your application.
-
-**As of version 2 of this package it's possibly to use dependency injection to inject an instance of the Cart class into your controller or other class**
+    composer update
 
 ## Overview
 Look at one of the following topics to learn more about LaravelShoppingcart
 
 * [Usage](#usage)
 * [Collections](#collections)
-* [Instances](#instances)
-* [Models](#models)
-* [Database](#database)
+* [Session](#session)
 * [Exceptions](#exceptions)
-* [Events](#events)
 * [Example](#example)
 
 ## Usage
@@ -54,50 +43,22 @@ Adding an item to the cart is really simple, you just use the `add()` method, wh
 In its most basic form you can specify the id, name, quantity, price of the product you'd like to add to the cart.
 
 ```php
-Cart::add('293ad', 'Product 1', 1, 9.99);
+Cart::add('293ad', 'Product 1', 9.99, 1);
+```
+
+**Parameters**
+
+```php
+id, name, price, qty, options (optional)
 ```
 
 As an optional fifth parameter you can pass it options, so you can add multiple items with the same id, but with (for instance) a different size.
 
 ```php
-Cart::add('293ad', 'Product 1', 1, 9.99, ['size' => 'large']);
+Cart::add('293ad', 'Product 1', 9.99, 1, ['size' => 'large']);
 ```
 
 **The `add()` method will return an CartItem instance of the item you just added to the cart.**
-
-Maybe you prefer to add the item using an array? As long as the array contains the required keys, you can pass it to the method. The options key is optional.
-
-```php
-Cart::add(['id' => '293ad', 'name' => 'Product 1', 'qty' => 1, 'price' => 9.99, 'options' => ['size' => 'large']]);
-```
-
-New in version 2 of the package is the possibility to work with the `Buyable` interface. The way this works is that you have a model implement the `Buyable` interface, which will make you implement a few methods so the package knows how to get the id, name and price from your model. 
-This way you can just pass the `add()` method a model and the quantity and it will automatically add it to the cart. 
-
-**As an added bonus it will automatically associate the model with the CartItem**
-
-```php
-Cart::add($product, 1, ['size' => 'large']);
-```
-As an optional third parameter you can add options.
-```php
-Cart::add($product, 1, ['size' => 'large']);
-```
-
-Finally, you can also add multipe items to the cart at once.
-You can just pass the `add()` method an array of arrays, or an array of Buyables and they will be added to the cart. 
-
-**When adding multiple items to the cart, the `add()` method will return an array of CartItems.**
-
-```php
-Cart::add([
-  ['id' => '293ad', 'name' => 'Product 1', 'qty' => 1, 'price' => 10.00],
-  ['id' => '4832k', 'name' => 'Product 2', 'qty' => 1, 'price' => 10.00, 'options' => ['size' => 'large']]
-]);
-
-Cart::add([$product1, $product2]);
-
-```
 
 ### Cart::update()
 
@@ -112,12 +73,10 @@ $rowId = 'da39a3ee5e6b4b0d3255bfef95601890afd80709';
 Cart::update($rowId, 2); // Will update the quantity
 ```
 
-If you want to update more attributes of the item, you can either pass the update method an array or a `Buyable` as the second parameter. This way you can update all information of the item with the given rowId.
+If you want to update more attributes of the item, you can either pass the update method an array as the second parameter. This way you can update all information of the item with the given rowId.
 
 ```php
 Cart::update($rowId, ['name' => 'Product 1']); // Will update the name
-
-Cart::update($rowId, $product); // Will update the id, name and price
 
 ```
 
@@ -149,15 +108,15 @@ Of course you also want to get the carts content. This is where you'll use the `
 Cart::content();
 ```
 
-This method will return the content of the current cart instance, if you want the content of another instance, simply chain the calls.
+This method will return the content of the current cart session, if you want the content of another session, simply chain the calls.
 
 ```php
-Cart::instance('wishlist')->content();
+Cart::session('wishlist')->content();
 ```
 
 ### Cart::destroy()
 
-If you want to completely remove the content of a cart, you can call the destroy method on the cart. This will remove all CartItems from the cart for the current cart instance.
+If you want to completely remove the content of a cart, you can call the destroy method on the cart. This will remove all CartItems from the cart for the current cart session.
 
 ```php
 Cart::destroy();
@@ -179,8 +138,6 @@ Cart::total($decimals, $decimalSeperator, $thousandSeperator);
 
 You can set the default number format in the config file.
 
-**If you're not using the Facade, but use dependency injection in your (for instance) Controller, you can also simply get the total property `$cart->total`**
-
 ### Cart::tax()
 
 The `tax()` method can be used to get the calculated amount of tax for all items in the cart, given there price and quantity.
@@ -196,8 +153,6 @@ Cart::tax($decimals, $decimalSeperator, $thousandSeperator);
 ```
 
 You can set the default number format in the config file.
-
-**If you're not using the Facade, but use dependency injection in your (for instance) Controller, you can also simply get the tax property `$cart->tax`**
 
 ### Cart::subtotal()
 
@@ -215,8 +170,6 @@ Cart::subtotal($decimals, $decimalSeperator, $thousandSeperator);
 
 You can set the default number format in the config file.
 
-**If you're not using the Facade, but use dependency injection in your (for instance) Controller, you can also simply get the subtotal property `$cart->subtotal`**
-
 ### Cart::count()
 
 If you want to know how many items there are in your cart, you can use the `count()` method. This method will return the total number of items in the cart. So if you've added 2 books and 1 shirt, it will return 3 items.
@@ -228,8 +181,6 @@ Cart::count();
 ### Cart::search()
 
 To find an item in the cart, you can use the `search()` method.
-
-**This method was changed on version 2**
 
 Behind the scenes, the method simply uses the filter method of the Laravel Collection class. This means you must pass it a Closure in which you'll specify you search terms.
 
@@ -263,104 +214,36 @@ Or you can group the content by the id of the products:
 Cart::content()->groupBy('id');
 ```
 
-## Instances
+## Session
 
-The packages supports multiple instances of the cart. The way this works is like this:
+The packages supports multiple sessions of the cart. The way this works is like this:
 
-You can set the current instance of the cart by calling `Cart::instance('newInstance')`. From this moment, the active instance of the cart will be `newInstance`, so when you add, remove or get the content of the cart, you're work with the `newInstance` instance of the cart.
-If you want to switch instances, you just call `Cart::instance('otherInstance')` again, and you're working with the `otherInstance` again.
+You can set the current session of the cart by calling `Cart::session('newSession')`. From this moment, the active session of the cart will be `newSession`, so when you add, remove or get the content of the cart, you're work with the `newSession` session of the cart.
+If you want to switch sessions, you just call `Cart::session('otherSession')` again, and you're working with the `otherSession` again.
 
 So a little example:
 
 ```php
-Cart::instance('shopping')->add('192ao12', 'Product 1', 1, 9.99);
+Cart::session('shopping')->add('192ao12', 'Product 1', 1, 9.99);
 
 // Get the content of the 'shopping' cart
 Cart::content();
 
-Cart::instance('wishlist')->add('sdjk922', 'Product 2', 1, 19.95, ['size' => 'medium']);
+Cart::session('wishlist')->add('sdjk922', 'Product 2', 1, 19.95, ['size' => 'medium']);
 
 // Get the content of the 'wishlist' cart
 Cart::content();
 
 // If you want to get the content of the 'shopping' cart again
-Cart::instance('shopping')->content();
+Cart::session('shopping')->content();
 
 // And the count of the 'wishlist' cart again
-Cart::instance('wishlist')->count();
+Cart::session('wishlist')->count();
 ```
 
-**N.B. Keep in mind that the cart stays in the last set instance for as long as you don't set a different one during script execution.**
+**N.B. Keep in mind that the cart stays in the last set session for as long as you don't set a different one during script execution.**
 
-**N.B.2 The default cart instance is called `default`, so when you're not using instances,`Cart::content();` is the same as `Cart::instance('default')->content()`.**
-
-## Models
-
-Because it can be very convenient to be able to directly access a model from a CartItem is it possible to associate a model with the items in the cart. Let's say you have a `Product` model in your application. With the `associate()` method, you can tell the cart that an item in the cart, is associated to the `Product` model. 
-
-That way you can access your model right from the `CartItem`!
-
-The model can be accessed via the `model` property on the CartItem.
-
-**If your model implements the `Buyable` interface and you used your model to add the item to the cart, it will associate automatically.**
-
-Here is an example:
-
-```php
-
-// First we'll add the item to the cart.
-$cartItem = Cart::add('293ad', 'Product 1', 1, 9.99, ['size' => 'large']);
-
-// Next we associate a model with the item.
-Cart::associate($cartItem->rowId, 'Product');
-
-// Or even easier, call the associate method on the CartItem!
-$cartItem->associate('Product');
-
-// You can even make it a one-liner
-Cart::add('293ad', 'Product 1', 1, 9.99, ['size' => 'large'])->associate('Product');
-
-// Now, when iterating over the content of the cart, you can access the model.
-foreach(Cart::content() as $row) {
-	echo 'You have ' . $row->qty . ' items of ' . $row->model->name . ' with description: "' . $row->model->description . '" in your cart.';
-}
-```
-## Database
-
-- [Config](#configuration)
-- [Storing the cart](#save-cart-to-database)
-- [Restoring the cart](#retrieve-cart-from-database)
-
-### Configuration
-To save cart into the database so you can retrieve it later, the package needs to know which database connection to use and what the name of the table is.
-By default the package will use the default database connection and use a table named `shoppingcart`.
-If you want to change these options, you'll have to publish the `config` file.
-
-    php artisan vendor:publish --provider="Gloudemans\Shoppingcart\ShoppingcartServiceProvider" --tag="config"
-
-This will give you a `cart.php` config file in which you can make the changes.
-
-To make your life easy, the package also includes a ready to use `migration` which you can publish by running:
-
-    php artisan vendor:publish --provider="Gloudemans\Shoppingcart\ShoppingcartServiceProvider" --tag="migrations"
-    
-This will place a `shoppingcart` table's migration file into `database/migrations` directory. Now all you have to do is run `php artisan migrate` to migrate your database.
-
-### Storing the cart    
-To store your cart instance into the database, you have to call the `store($identifier) ` method. Where `$identifier` is a random key, for instance the id or username of the user.
-
-    Cart::store('username');
-    
-    // To store a cart instance named 'wishlist'
-    Cart::instance('wishlist')->store('username');
-
-### Restoring the cart
-If you want to retrieve the cart from the database and restore it, all you have to do is call the  `restore($identifier)` where `$identifier` is the key you specified for the `store` method.
- 
-    Cart::restore('username');
-    
-    // To restore a cart instance named 'wishlist'
-    Cart::instance('wishlist')->restore('username');
+**N.B.2 The default cart session is called `cart_items`, so when you're not using sessions,`Cart::content();` is the same as `Cart::session('cart_items')->content()`.**
 
 ## Exceptions
 
@@ -368,21 +251,7 @@ The Cart package will throw exceptions if something goes wrong. This way it's ea
 
 | Exception                    | Reason                                                                             |
 | ---------------------------- | ---------------------------------------------------------------------------------- |
-| *CartAlreadyStoredException* | When trying to store a cart that was already stored using the specified identifier |
-| *InvalidRowIDException*      | When the rowId that got passed doesn't exists in the current cart instance         |
-| *UnknownModelException*      | When you try to associate an none existing model to a CartItem.                    |
-
-## Events
-
-The cart also has events build in. There are five events available for you to listen for.
-
-| Event         | Fired                                    | Parameter                        |
-| ------------- | ---------------------------------------- | -------------------------------- |
-| cart.added    | When an item was added to the cart.      | The `CartItem` that was added.   |
-| cart.updated  | When an item in the cart was updated.    | The `CartItem` that was updated. |
-| cart.removed  | When an item is removed from the cart.   | The `CartItem` that was removed. |
-| cart.stored   | When the content of a cart was stored.   | -                                |
-| cart.restored | When the content of a cart was restored. | -                                |
+| *InvalidItemException* | When the rowId that got passed doesn't exists in the current cart session or any other error |
 
 ## Example
 
@@ -391,8 +260,8 @@ Below is a little example of how to list the cart content in a table:
 ```php
 
 // Add some items in your Controller.
-Cart::add('192ao12', 'Product 1', 1, 9.99);
-Cart::add('1239ad0', 'Product 2', 2, 5.95, ['size' => 'large']);
+Cart::add('192ao12', 'Product 1', 9.99, 1);
+Cart::add('1239ad0', 'Product 2', 5.95, 2, ['size' => 'large']);
 
 // Display the content in a View.
 <table>

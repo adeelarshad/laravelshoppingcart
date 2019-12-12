@@ -165,7 +165,7 @@ class Cart
      * @param $id
      * @param $data
      *
-     * the $data will be an associative array, you don't need to pass all the data, only the key value
+     * the $data will be an associative array or qty, you don't need to pass all the data, only the key value
      * of the item you want to update on it
      * @return bool
      */
@@ -174,13 +174,24 @@ class Cart
         $cart = $this->getContent();
         $item = $cart->pull($id);
 
-        foreach ($data as $key => $value) {
+        // if data is array
+        if ( is_array($data) && !empty($data) ) {
 
-            if ($key == 'options') {
-                $item->{$key} = new CartItemOptions($value);
-            } else {
-                $item->{$key} = $value;
+            foreach ($data as $key => $value) {
+
+                if ($key == 'options') {
+                    $item->{$key} = new CartItemOptions($value);
+                } else {
+                    $item->{$key} = $value;
+                }
             }
+
+        } else {
+
+            if ( empty($data) ) 
+                throw new InvalidItemException("Please supply a valid quantity.");
+
+            $item->qty = $data;
         }
 
         $cart->put($id, $item);
