@@ -109,10 +109,10 @@ class Cart
 
         // if the item is already in the cart we will just update it
         if ($cart->has($cartItem->rowId)) {
-            $this->update($cartItem->rowId, $cartItem);
-        } else {
-            $this->addRow($cartItem->rowId, $cartItem);
+            $cartItem->qty += $cart->get($cartItem->rowId)->qty;
         }
+
+        $this->addRow($cartItem->rowId, $cartItem);
 
         return $this;
     }
@@ -226,11 +226,7 @@ class Cart
      */
     public function getContent()
     {
-        $content = $this->session->has($this->sessionKeyCartItems)
-            ? $this->session->get($this->sessionKeyCartItems)
-            : collect([]);
-
-        return $content;
+        return (collect($this->session->get($this->sessionKeyCartItems)));
     }
 
     /**
@@ -275,6 +271,17 @@ class Cart
     }
 
     /**
+     * check if an item exists by item ID
+     *
+     * @param $itemId
+     * @return bool
+     */
+    public function has($itemId)
+    {
+        return $this->getContent()->has($itemId);
+    }
+
+    /**
      * Get a cart item from the cart by its rowId.
      *
      * @param string $rowId
@@ -297,7 +304,7 @@ class Cart
      */
     public function destroy()
     {
-        $this->session->remove($this->sessionKeyCartItems);
+        $this->session->forget($this->sessionKeyCartItems);
     }
 
     /**
