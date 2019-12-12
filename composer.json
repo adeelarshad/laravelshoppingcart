@@ -27,7 +27,7 @@
                 "Proxi\\ShoppingCart\\CartServiceProvider"
             ],
             "aliases": {
-                "Cart": "Proxi\\ShoppingCart\\Facade\\Cart"
+                "Cart": "Proxi\\ShoppingCart\\Facades\\Cart"
             }
         }
     }
