@@ -8,11 +8,11 @@ Install the package through [Composer](http://getcomposer.org/).
 
 Add this code in your laravel project composer.json file under "require"
 
-		"proxi/shoppingcart": "^1.0.1"
+	"proxi/shoppingcart": "^1.0.1"
 
 Define repositories url in your composer.json file
 
-		"repositories": [
+	"repositories": [
         {
             "type": "vcs",
             "url": "https://github.com/adeelarshad/laravelshoppingcart"
