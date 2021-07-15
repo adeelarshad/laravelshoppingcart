@@ -124,7 +124,8 @@ class CartItem
         }
         
         if($attribute === 'total') {
-            return $this->qty * ($this->priceTax);
+            if ( isset($this->options['discount']) ) $discount = $this->options['discount']; else $discount = 0;
+            return ( $this->qty * $this->priceTax ) - $discount;
         }
 
         if($attribute === 'tax') {

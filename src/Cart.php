@@ -109,12 +109,15 @@ class Cart
 
         // if the item is already in the cart we will just update it
         if ($cart->has($cartItem->rowId)) {
-            $cartItem->qty += $cart->get($cartItem->rowId)->qty;
+            $new_qty = $cartItem->qty + $cart->get($cartItem->rowId)->qty;
+            if ( $new_qty > $options['total_stock'] ) $new_qty = $options['total_stock'];
+
+            $cartItem->qty = $new_qty;
         }
 
         $this->addRow($cartItem->rowId, $cartItem);
 
-        return $this;
+        return $cartItem->rowId;
     }
 
     /**
@@ -356,7 +359,28 @@ class Cart
         $content = $this->getContent();
 
         $total = $content->reduce(function ($total, CartItem $cartItem) {
-            return $total + ($cartItem->qty * $cartItem->priceTax);
+            if ( isset($cartItem->options['discount']) ) $discount = $cartItem->options['discount']; else $discount = 0;
+            return $total + ( ($cartItem->qty * $cartItem->priceTax) - $discount );
+        }, 0);
+
+        return $this->numberFormat($total, $decimals, $decimalPoint, $thousandSeperator);
+    }
+
+    /**
+     * Get the price discount total of the items in the cart.
+     *
+     * @param int    $decimals
+     * @param string $decimalPoint
+     * @param string $thousandSeperator
+     * @return string
+     */
+    public function discount($decimals = null, $decimalPoint = null, $thousandSeperator = null)
+    {
+        $content = $this->getContent();
+
+        $total = $content->reduce(function ($total, CartItem $cartItem) {
+            if ( isset($cartItem->options['discount']) ) $discount = $cartItem->options['discount']; else $discount = 0;
+            return $total + $discount;
         }, 0);
 
         return $this->numberFormat($total, $decimals, $decimalPoint, $thousandSeperator);
