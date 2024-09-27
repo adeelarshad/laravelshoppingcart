@@ -4,6 +4,7 @@ namespace Proxi\ShoppingCart;
 
 use Validator;
 use Proxi\ShoppingCart\Exceptions\InvalidItemException;
+use Proxi\ShoppingCart\Services\DatabaseService;
 
 /**
  * Class Cart
@@ -47,6 +48,13 @@ class Cart
     protected $config;
 
     /**
+     * Instance for DB model
+     *
+     * @var
+     */
+    protected $databaseService;
+
+    /**
      * our object constructor
      *
      * @param $session
@@ -62,6 +70,7 @@ class Cart
         $this->instanceName = $instanceName;
         $this->sessionKeyCartItems = 'cart_items';
         $this->config = $config;
+        $this->databaseService = new DatabaseService();
     }
 
     /**
@@ -116,6 +125,8 @@ class Cart
         }
 
         $this->addRow($cartItem->rowId, $cartItem);
+
+        $this->databaseService->add($cartItem);
 
         return $cartItem->rowId;
     }
@@ -191,13 +202,15 @@ class Cart
 
         } else {
 
-            if ( empty($data) ) 
+            if ( empty($data) )
                 throw new InvalidItemException("Please supply a valid quantity.");
 
             $item->qty = $data;
         }
 
         $cart->put($id, $item);
+
+        $this->databaseService->update($item);
 
         $this->save($cart);
 
@@ -271,6 +284,8 @@ class Cart
         $content->pull($cartItem->rowId);
 
         $this->save($content);
+
+        $this->databaseService->remove($rowId);
     }
 
     /**
@@ -308,6 +323,7 @@ class Cart
     public function destroy()
     {
         $this->session->forget($this->sessionKeyCartItems);
+        $this->databaseService->destroy();
     }
 
     /**
