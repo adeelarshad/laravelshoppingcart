@@ -368,6 +368,7 @@ class Cart
      */
     public function setCartFromDatabase($items)
     {
+        $this->session->forget($this->sessionKeyCartItems);
         $cart = $this->getContent();
 
         foreach ($items as $item) {
