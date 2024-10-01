@@ -68,12 +68,6 @@ class DatabaseService
             ->where('cart_id', $this->cartModel->id)
             ->where('row_id', $rowId)
             ->delete();
-
-        $checkRemaining = CartItemModel::where('cart_id', $this->cartModel->id)->count();
-
-        if (empty($checkRemaining)) {
-            $this->destroy();
-        }
     }
 
     public function destroy()
@@ -91,17 +85,16 @@ class DatabaseService
             return;
         }
 
+        request()->session()->put('load_cart_check', true);
+
         $customer = auth()->guard('shop')->user();
         $cart = CartModel::where('user_id', $customer->id)->with('items')->first();
 
-        if (! $cart) {
+        if (! $cart || $cart->items->isEmpty()) {
             return;
         }
 
-        foreach ($cart->items as $item) {
-            // add option to skip database inseration
-            Cart::add($item->product_id, $item->title, $item->price, $item->qty, $item->options);
-        }
+        Cart::setCartFromDatabase($cart->items);
     }
 
     protected function getCartModel()

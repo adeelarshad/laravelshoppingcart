@@ -363,6 +363,22 @@ class Cart
     }
 
     /**
+     * Set cart from Database.
+     *
+     */
+    public function setCartFromDatabase($items)
+    {
+        $cart = $this->getContent();
+
+        foreach ($items as $item) {
+            $cartItem = $this->createCartItem($item->product_id, $item->title, $item->price, $item->qty, $item->options);
+            $cart->put($cartItem->rowId, $cartItem);
+        }
+
+        $this->session->put($this->sessionKeyCartItems, $cart);
+    }
+
+    /**
      * Get the total price of the items in the cart.
      *
      * @param int    $decimals
