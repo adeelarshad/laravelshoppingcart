@@ -78,6 +78,8 @@ class DatabaseService
                 ->where('cart_id', $this->cartModel->id)
                 ->where('row_id', $rowId)
                 ->delete();
+
+            $this->cartModel->touch();
         } catch (\Throwable $th) {
             Log::alert('Error in deleting cart item: ' . $th->getMessage());
         }
