@@ -14,11 +14,10 @@ class CartServiceProvider extends ServiceProvider
     public function register()
     {
         $this->mergeConfigFrom(
-            __DIR__.'/config/cart.php', 'cart'
+            __DIR__ . '/config/cart.php', 'cart'
         );
 
         $this->app->singleton('cart', function ($app) {
-            
             $storage = $app['session'];
             $events = $app['events'];
             $instanceName = 'cart';
@@ -35,7 +34,7 @@ class CartServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->publishes([
-            __DIR__.'/config/cart.php' => config_path('cart.php'),
+            __DIR__ . '/config/cart.php' => config_path('cart.php'),
         ]);
     }
 }

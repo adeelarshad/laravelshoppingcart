@@ -1,14 +1,14 @@
 ## LaravelShoppingcart
 
-A simple shoppingcart implementation for Laravel.
+A simple shoppingcart implementation for Laravel 8 to 12.
 
 ## Installation
 
-Install the package through [Composer](http://getcomposer.org/). 
+Install the package through [Composer](http://getcomposer.org/).
 
 Add this code in your laravel project composer.json file under "require"
 
-	"proxi/shoppingcart": "^1.0.3"
+	"proxi/shoppingcart": "^3.0.0"
 
 Define repositories url in your composer.json file
 
@@ -156,7 +156,7 @@ You can set the default number format in the config file.
 
 ### Cart::subtotal()
 
-The `subtotal()` method can be used to get the total of all items in the cart, minus the total amount of tax. 
+The `subtotal()` method can be used to get the total of all items in the cart, minus the total amount of tax.
 
 ```php
 Cart::subtotal();
@@ -291,7 +291,7 @@ Cart::add('1239ad0', 'Product 2', 5.95, 2, ['size' => 'large']);
 	   	<?php endforeach;?>
 
    	</tbody>
-   	
+
    	<tfoot>
    		<tr>
    			<td colspan="2">&nbsp;</td>
