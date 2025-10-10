@@ -69,16 +69,19 @@ class CartItem
      */
     public function __construct($id, $name, $price, $qty, $options = [])
     {
-        if(empty($id)) {
+        if (empty($id)) {
             throw new InvalidItemException('Please supply a valid identifier.');
         }
-        if(empty($name)) {
+
+        if (empty($name)) {
             throw new InvalidItemException('Please supply a valid name.');
         }
-        if(strlen($price) < 0 || ! is_numeric($price)) {
+
+        if ($price < 0 || ! is_numeric($price)) {
             throw new InvalidItemException('Please supply a valid price.');
         }
-        if(empty($qty) || ! is_numeric($qty)) {
+
+        if (empty($qty) || ! is_numeric($qty)) {
             throw new InvalidItemException('Please supply a valid quantity.');
         }
 
@@ -99,7 +102,7 @@ class CartItem
     public function setTaxRate($taxRate)
     {
         $this->taxRate = $taxRate;
-        
+
         return $this;
     }
 
@@ -111,28 +114,29 @@ class CartItem
      */
     public function __get($attribute)
     {
-        if(property_exists($this, $attribute)) {
+        if (property_exists($this, $attribute)) {
             return $this->{$attribute};
         }
 
-        if($attribute === 'priceTax') {
+        if ($attribute === 'priceTax') {
             return $this->price + $this->tax;
         }
-        
-        if($attribute === 'subtotal') {
+
+        if ($attribute === 'subtotal') {
             return $this->qty * $this->price;
         }
-        
-        if($attribute === 'total') {
-            if ( isset($this->options['discount']) ) $discount = $this->options['discount']; else $discount = 0;
-            return ( $this->qty * $this->priceTax ) - $discount;
+
+        if ($attribute === 'total') {
+            if (isset($this->options['discount'])) $discount = $this->options['discount'];
+            else $discount = 0;
+            return ($this->qty * $this->priceTax) - $discount;
         }
 
-        if($attribute === 'tax') {
+        if ($attribute === 'tax') {
             return $this->price * ($this->taxRate / 100);
         }
-        
-        if($attribute === 'taxTotal') {
+
+        if ($attribute === 'taxTotal') {
             return $this->tax * $this->qty;
         }
 

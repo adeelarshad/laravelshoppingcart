@@ -5,6 +5,7 @@ namespace Proxi\ShoppingCart;
 use Validator;
 use Proxi\ShoppingCart\Exceptions\InvalidItemException;
 use Proxi\ShoppingCart\Services\DatabaseService;
+use Closure;
 
 /**
  * Class Cart
@@ -242,7 +243,7 @@ class Cart
      */
     public function getContent()
     {
-        return (collect($this->session->get($this->sessionKeyCartItems)));
+        return collect($this->session->get($this->sessionKeyCartItems) ?: []);
     }
 
     /**
